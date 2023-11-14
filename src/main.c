@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 // Basic data structures
 typedef struct {
@@ -19,7 +20,7 @@ typedef struct {
     int capacity;        // Array current capacity
 } Collection;
 
-// CRUD
+/* CRUD functions */
 Document* create_document(const char* id, const char* content) {
     Document* doc = malloc(sizeof(Document));
     if (!doc) return NULL; // malloc fail
@@ -90,7 +91,21 @@ char* read_document(const char* id){
 
 }
 
-void update_document(const char* id, const char* content);
+bool update_document(const char* id, const char* new_content){
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s.json", id);
+
+    FILE *file = fopen(filename, "w");
+    if (file == NULL){
+        return false;
+    }
+
+    fprintf(file, "%s", new_content);
+    fclose(file);
+
+    return true;
+}
+
 void delete_document(const char* id);
 
 int main() {
