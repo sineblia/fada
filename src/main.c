@@ -93,7 +93,7 @@ char* read_document(const char* id){
 
 bool update_document(const char* id, const char* new_content){
     char filename[256];
-    snprintf(filename, sizeof(filename), "%s.json", id);
+    // snprintf(filename, sizeof(filename), "%s.json", id);
 
     FILE *file = fopen(filename, "w");
     if (file == NULL){
@@ -106,7 +106,18 @@ bool update_document(const char* id, const char* new_content){
     return true;
 }
 
-void delete_document(const char* id);
+bool delete_document(const char* id){
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s.json", id);
+
+    if (remove(filename) == 0) {
+        printf("Deleted successfully\n");
+        return true;
+    } else {
+        printf("Unable to delete the file\n");
+        return false;
+    }
+}
 
 int main() {
     // char* id = "testdoc";
