@@ -14,3 +14,10 @@ Here's why I'm developing Fada:
 
 Please, don't expect strict deadlines and give me all the feedbacks you prefer. 
 At the state of art, Fada is not ready to be deployed in a productive environment. But that's the long-term goal.
+
+- [ ] Basic CRUD functions
+- [ ] Document management
+- [ ] Data Structures
+- [ ] Memory efficiency
+- [ ] Basic CLI
+- [ ] Hybrid storage management (in-memory and on-disk)
