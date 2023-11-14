@@ -56,11 +56,48 @@ Document* create_document(const char* id, const char* content) {
     return doc;
 }
 
-void read_document(const char* id);
+char* read_document(const char* id){
+
+    char filename[256];
+    snprintf(filename, sizeof(filename), "%s.json", id);
+
+    FILE *file = fopen(filename, "r");
+
+    // We should manage the case when the file doesn't exist
+    if (file == NULL){
+        return NULL;
+    }
+
+    // Find the file dimensions
+    fseek(file, 0, SEEK_END);
+    long length = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // Allocate the memory for the file's contents
+    char *content = malloc(length + 1);
+    if (content == NULL){
+        // Handle the error of memory allocation
+        fclose(file);
+        return NULL;
+    }
+
+    // Read the file contents
+    fread(content, 1, length, file);
+    content[length] = '\0'; // We make sure that the string correctly reach its end
+
+    fclose(file);
+    return content; // Who calls the function will be responsible of freeing this memory
+
+}
+
 void update_document(const char* id, const char* content);
 void delete_document(const char* id);
 
 int main() {
-    printf("Hello world!");
+    // char* id = "testdoc";
+    // char* content = "{ \"name\": \"test\" }";
+
+    // Document* doc = create_document(id, content);
+
     return 0;
 }
