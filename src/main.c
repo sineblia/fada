@@ -154,10 +154,30 @@ bool delete_document(const char *id){
 }
 
 int main() {
-    // char* id = "testdoc";
-    // char* content = "{ \"name\": \"test\" }";
+    char input[256];
 
-    // Document* doc = create_document(id, content);
+    while (true) {
+        printf("db> ");
+        
+        if (fgets(input, sizeof(input), stdin) == NULL) break;
+
+        if (strcmp(input, "create ...") == 0) {
+            // Creation logics
+        } else if (strcmp(input, "read ...") == 0){
+            // Reading logics
+        } else if (strcmp(input, "update ...") == 0){
+            // Update logics
+        } else if (strcmp(input, "remove ...") == 0){
+            // Remove logics
+        }
+
+        if (strcmp(input, "exit\n") == 0){
+            break; // Exiting the loop
+        }
+    }
+
+    // Cleaning memory and closure
+    // ...
 
     return 0;
 }
