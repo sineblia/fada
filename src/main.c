@@ -8,22 +8,22 @@
 #include <string.h>
 #include <stdbool.h>
 
-// Basic data structures
+/* Basic data structures */
 typedef struct {
-    char* id;       // Unique document ID
-    char* content;  // Document contents (JSON)
+    char *id;       // Unique document ID
+    char *content;  // Document contents (JSON)
 } Document;
 
 typedef struct {
-    Document* documents; // Dynamic array of documents
+    Document *documents; // Dynamic array of documents
     int size;            // Number of documents currently stored
     int capacity;        // Current capacity of the array
 } Collection;
 
 /* Collection functions */
 
-Collection* create_collection(int initial_capacity){
-    Collection* collection = malloc(sizeof(Collection));
+Collection *create_collection(int initial_capacity){
+    Collection *collection = malloc(sizeof(Collection));
     if(!collection) return NULL;
 
     collection->documents = malloc(sizeof(Document) * initial_capacity);
@@ -38,9 +38,25 @@ Collection* create_collection(int initial_capacity){
     return collection;
 }
 
-/* CRUD functions */
-Document* create_document(const char* id, const char* content) {
-    Document* doc = malloc(sizeof(Document));
+bool add_document_to_collection(Collection *collection, Document *document){
+    if (collection->size >= collection->capacity){
+        // Dynamic expansion
+        int new_capacity = collection->capacity * 2;
+        Document * new_array = realloc(collection->documents, sizeof(Document) * new_capacity);
+        if (!new_array) return false; // Reallocation fails
+
+        collection->documents = new_array;
+        collection->capacity = new_capacity;
+    }
+
+    collection->documents[collection->size++] = *document;
+    return true;
+}
+
+/* Document CRUD functions */
+
+Document *create_document(const char *id, const char *content) {
+    Document *doc = malloc(sizeof(Document));
     if (!doc) return NULL; // malloc fail
 
     doc->id = strdup(id);
@@ -75,7 +91,7 @@ Document* create_document(const char* id, const char* content) {
     return doc;
 }
 
-char* read_document(const char* id){
+char *read_document(const char* id){
 
     char filename[256];
     snprintf(filename, sizeof(filename), "%s.json", id);
@@ -109,7 +125,7 @@ char* read_document(const char* id){
 
 }
 
-bool update_document(const char* id, const char* new_content){
+bool update_document(const char *id, const char *new_content){
     char filename[256];
     // snprintf(filename, sizeof(filename), "%s.json", id);
 
@@ -124,7 +140,7 @@ bool update_document(const char* id, const char* new_content){
     return true;
 }
 
-bool delete_document(const char* id){
+bool delete_document(const char *id){
     char filename[256];
     snprintf(filename, sizeof(filename), "%s.json", id);
 
