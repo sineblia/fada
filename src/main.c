@@ -161,17 +161,36 @@ int main() {
         
         if (fgets(input, sizeof(input), stdin) == NULL) break;
 
-        if (strcmp(input, "create ...") == 0) {
-            // Creation logics
-        } else if (strcmp(input, "read ...") == 0){
+        // Rimuovi il newline dall'input
+        input[strcspn(input, "\n")] = 0;
+
+        if (strcmp(input, "create") == 0) {
+            printf("What do you want to create?\n");
+            printf("1. A new collection\n");
+            printf("2. A new document\n");
+            
+            printf("Please enter your choice: ");
+            if (fgets(input, sizeof(input), stdin) == NULL) break;
+            
+            // Rimuovi di nuovo il newline
+            input[strcspn(input, "\n")] = 0;
+
+            if (strcmp(input, "1") == 0) {
+                create_collection(10);
+                printf("A new collection is created.\n");
+            } else if (strcmp(input, "2") == 0) {
+                create_document("1", "content");
+                printf("A new document is created.\n");
+            }
+        } else if (strcmp(input, "read") == 0){
             // Reading logics
-        } else if (strcmp(input, "update ...") == 0){
+        } else if (strcmp(input, "update") == 0){
             // Update logics
-        } else if (strcmp(input, "remove ...") == 0){
+        } else if (strcmp(input, "remove") == 0){
             // Remove logics
         }
 
-        if (strcmp(input, "exit\n") == 0){
+        if (strcmp(input, "exit") == 0){
             break; // Exiting the loop
         }
     }
