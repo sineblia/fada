@@ -15,10 +15,28 @@ typedef struct {
 } Document;
 
 typedef struct {
-    Document* documents; // Documents array
-    int size;            // Number of documents in-memory
-    int capacity;        // Array current capacity
+    Document* documents; // Dynamic array of documents
+    int size;            // Number of documents currently stored
+    int capacity;        // Current capacity of the array
 } Collection;
+
+/* Collection functions */
+
+Collection* create_collection(int initial_capacity){
+    Collection* collection = malloc(sizeof(Collection));
+    if(!collection) return NULL;
+
+    collection->documents = malloc(sizeof(Document) * initial_capacity);
+    
+    if(!collection->documents){
+        free(collection);
+        return NULL;
+    }
+
+    collection->size = 0;
+    collection->capacity = initial_capacity;
+    return collection;
+}
 
 /* CRUD functions */
 Document* create_document(const char* id, const char* content) {
