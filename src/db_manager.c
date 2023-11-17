@@ -15,18 +15,18 @@ typedef struct {
     char *content;  // Document contents (JSON)
 } Document;
 
-typedef struct {
-    Document *documents; // Dynamic array of documents
-    int size;            // Number of documents currently stored
-    int capacity;        // Current capacity of the array
-} Collection;
-
-/* Hash indexes */
 typedef struct HashEntry {
     char *key;
     Document *value;
     struct HashEntry *next;
 } HashEntry;
+
+typedef struct {
+    Document *documents; // Dynamic array of documents
+    HashTable *hashTable; // HashTable for the collection
+    int size;            // Number of documents currently stored
+    int capacity;        // Current capacity of the array
+} Collection;
 
 typedef struct {
     char *id;
@@ -35,19 +35,25 @@ typedef struct {
 
 /* Collection functions */
 
-Collection *create_collection(int initial_capacity){
-    Collection *collection = malloc(sizeof(Collection));
-    if(!collection) return NULL;
+HashTable *create_hash_table();
 
-    collection->documents = malloc(sizeof(Document) * initial_capacity);
+Collection *create_collection(){
+    Collection *collection = malloc(sizeof(Collection));
+    if(!collection){
+        free(collection);
+        return NULL;
+    }
     
-    if(!collection->documents){
+    // Creates the hash table
+    collection->hashTable = create_hash_table();
+    if(!collection->hashTable){
         free(collection);
         return NULL;
     }
 
+    // Initializes the documents array
     collection->size = 0;
-    collection->capacity = initial_capacity;
+    collection->capacity = 0;
     return collection;
 }
 
