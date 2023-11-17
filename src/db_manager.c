@@ -8,7 +8,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-/* Basic data structures */
+/* Document and Collections */
+
 typedef struct {
     char *id;       // Unique document ID
     char *content;  // Document contents (JSON)
@@ -19,6 +20,18 @@ typedef struct {
     int size;            // Number of documents currently stored
     int capacity;        // Current capacity of the array
 } Collection;
+
+/* Hash indexes */
+typedef struct HashEntry {
+    char *key;
+    Document *value;
+    struct HashEntry *next;
+} HashEntry;
+
+typedef struct {
+    char *id;
+    HashEntry **entries;
+} HashTable;
 
 /* Collection functions */
 
@@ -154,49 +167,5 @@ bool delete_document(const char *id){
 }
 
 int main() {
-    char input[256];
-
-    while (true) {
-        printf("db> ");
-        
-        if (fgets(input, sizeof(input), stdin) == NULL) break;
-
-        // Rimuovi il newline dall'input
-        input[strcspn(input, "\n")] = 0;
-
-        if (strcmp(input, "create") == 0) {
-            printf("What do you want to create?\n");
-            printf("1. A new collection\n");
-            printf("2. A new document\n");
-            
-            printf("Please enter your choice: ");
-            if (fgets(input, sizeof(input), stdin) == NULL) break;
-            
-            // Rimuovi di nuovo il newline
-            input[strcspn(input, "\n")] = 0;
-
-            if (strcmp(input, "1") == 0) {
-                create_collection(10);
-                printf("A new collection is created.\n");
-            } else if (strcmp(input, "2") == 0) {
-                create_document("1", "content");
-                printf("A new document is created.\n");
-            }
-        } else if (strcmp(input, "read") == 0){
-            // Reading logics
-        } else if (strcmp(input, "update") == 0){
-            // Update logics
-        } else if (strcmp(input, "remove") == 0){
-            // Remove logics
-        }
-
-        if (strcmp(input, "exit") == 0){
-            break; // Exiting the loop
-        }
-    }
-
-    // Cleaning memory and closure
-    // ...
-
-    return 0;
+       return 0;
 }
