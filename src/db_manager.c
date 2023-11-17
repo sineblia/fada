@@ -8,39 +8,61 @@
 #include <string.h>
 #include <stdbool.h>
 
-/* Document and Collections */
+#define INITIAL_HASH_TABLE_SIZE 16
+
+/* Data Structures */
 
 typedef struct {
-    char *id;       // Unique document ID
-    char *content;  // Document contents (JSON)
+    char *id;       // document ID
+    char *content;  // json
 } Document;
 
 typedef struct HashEntry {
     char *key;
     Document *value;
-    struct HashEntry *next;
+    struct HashEntry *next; // to manage collisions with chaining
 } HashEntry;
 
 typedef struct {
-    Document *documents; // Dynamic array of documents
-    HashTable *hashTable; // HashTable for the collection
-    int size;            // Number of documents currently stored
-    int capacity;        // Current capacity of the array
-} Collection;
+    char *id;
+    int size;
+    HashEntry **buckets; // array of pointers to HashEntry
+} HashTable;
 
 typedef struct {
-    char *id;
-    HashEntry **entries;
-} HashTable;
+    Document *documents; // dynamic array of documents
+    HashTable *hashTable; // HashTable for the collection
+    int size;            // number of documents currently stored
+    int capacity;        // current capacity of the array
+} Collection;
 
 /* Collection functions */
 
-HashTable *create_hash_table();
+HashTable *create_hash_table(){
+    HashTable *table = malloc(sizeof(HashTable));
+    if(!table){
+        return NULL;
+    }
+
+    table->size = INITIAL_HASH_TABLE_SIZE;
+    table->buckets = malloc(sizeof(HashEntry*) * table->size);
+
+    if(!table->buckets){
+        free(table);
+        return NULL;
+    }
+
+    // initializes each bucket to NULL
+    for (int i = 0; i < table->size; i++){
+        table->buckets[i] = NULL;
+    }
+
+    return table;
+};
 
 Collection *create_collection(){
     Collection *collection = malloc(sizeof(Collection));
     if(!collection){
-        free(collection);
         return NULL;
     }
     
@@ -52,6 +74,7 @@ Collection *create_collection(){
     }
 
     // Initializes the documents array
+    collection->documents = NULL;
     collection->size = 0;
     collection->capacity = 0;
     return collection;
@@ -170,8 +193,4 @@ bool delete_document(const char *id){
         printf("Unable to delete the file\n");
         return false;
     }
-}
-
-int main() {
-       return 0;
 }
