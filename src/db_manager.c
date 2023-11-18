@@ -4,7 +4,7 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
@@ -108,6 +108,17 @@ HashEntry *create_hash_entry(char *key, unsigned long hash, Document *value) {
     entry->next = NULL;
 
     return entry;
+}
+
+void insert_into_hash_table(HashTable *table, HashEntry *entry) {
+    if (table == NULL || entry == NULL) return;
+
+    int index = entry->hash % table->size;
+
+    if (table->buckets[index] != NULL) {
+        entry->next = table->buckets[index];
+    }
+    table->buckets[index] = entry;
 }
 
 Collection *create_collection(){

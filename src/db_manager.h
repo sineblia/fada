@@ -45,6 +45,7 @@ HashEntry *create_hash_entry(char *key, unsigned long hash, Document *value);
 Collection *create_collection();
 char *generate_unique_id();
 Document *create_document(const char *content);
+void insert_into_hash_table(HashTable *table, HashEntry *entry);
 
 void free_hash_table(HashTable *table);
 void free_hash_entry(HashEntry *entry);
