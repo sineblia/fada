@@ -12,15 +12,18 @@
 #define INITIAL_HASH_TABLE_SIZE 16
 
 /* Data Structures */
+typedef struct HashEntry HashEntry;
 
 typedef struct {
     char *id;       // document ID
+    HashEntry *hash_id; // hash ID generated from the original ID
     char *content;  // json
 } Document;
 
 typedef struct HashEntry {
-    char *key;
-    Document *value;
+    char *key; // original document _id
+    unsigned long hash; // hash value calculated from the ID
+    Document *value; // doc reference
     struct HashEntry *next; // to manage collisions with chaining
 } HashEntry;
 
@@ -31,7 +34,7 @@ typedef struct {
 } HashTable;
 
 typedef struct {
-    Document *documents; // dynamic array of documents
+    Document **documents; // dynamic array of documents
     HashTable *hashTable; // HashTable for the collection
     char *id; // collection ID
     int size;            // number of documents currently stored
@@ -61,6 +64,51 @@ HashTable *create_hash_table(){
 
     return table;
 };
+
+/*
+
+HASH FUNCTION
+
+The generated hashes should be uniformly distributed in the hash space to minimize collisions.
+The same key should always produce the same hash value. The hashing function should be fast 
+enough to compute. For these reasons, here we're using Dan Bernstein's "djb2" hashing algorithm.
+
+*/
+
+unsigned long hash_function(const char *str){
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++)) {
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+    }
+
+    return hash;
+}
+
+/*
+
+HASH ENTRY
+
+The HashEntry includes both the original key (document ID) and the hash value computed from that key. 
+This approach allows to maintain both quick access to documents (through the hash) and the ability to 
+handle collisions and maintain data integrity (through the original key and linked list management).
+
+*/
+
+HashEntry *create_hash_entry(char *key, unsigned long hash, Document *value) {
+    HashEntry *entry = malloc(sizeof(HashEntry));
+    if (!entry) {
+        return NULL;
+    }
+
+    entry->key = strdup(key);
+    entry->hash = hash;
+    entry->value = value;
+    entry->next = NULL;
+
+    return entry;
+}
 
 Collection *create_collection(){
     Collection *collection = malloc(sizeof(Collection));
@@ -96,11 +144,11 @@ char *generate_unique_id() {
     return id; // who calls this function will have to free the memory
 }
 
-Document *create_document(const char *id, const char *content) {
+Document *create_document(const char *content) {
     Document *doc = malloc(sizeof(Document));
     if (!doc) return NULL; // malloc fail
 
-    doc->id = strdup(id);
+    doc->id = strdup(generate_unique_id());
     if(!doc->id) {
         free(doc); // clean in case of error
         return NULL;
@@ -109,6 +157,15 @@ Document *create_document(const char *id, const char *content) {
     doc->content = strdup(content);
     if (!doc->content) {
         free(doc->id); // clean in case of error
+        free(doc);
+        return NULL;
+    }
+
+    unsigned long hash_value = hash_function(doc->id);
+    doc->hash_id = create_hash_entry(doc->id, hash_value, doc);
+    if (!doc->hash_id) {
+        free(doc->content);
+        free(doc->id);
         free(doc);
         return NULL;
     }
@@ -192,4 +249,48 @@ bool delete_document(const char *id){
         printf("Unable to delete the file\n");
         return false;
     }
+}
+
+/* Free Memory Functions */
+void free_hash_entry(HashEntry *entry) {
+    if (entry == NULL) return;
+
+    free(entry->key);
+    
+    free(entry);
+}
+
+void free_document(Document *doc) {
+    if (doc == NULL) return;
+
+    free(doc->id);
+    free(doc->content);
+    free(doc);
+}
+
+void free_hash_table(HashTable *table) {
+    if (table == NULL) return;
+
+    for (int i = 0; i < table->size; i++) {
+        HashEntry *entry = table->buckets[i];
+        while (entry != NULL) {
+            HashEntry *temp = entry;
+            entry = entry->next;
+            free_hash_entry(temp); 
+        }
+    }
+
+    free(table->buckets);
+    free(table);
+}
+
+void free_collection(Collection *collection) {
+    if (collection == NULL) return;
+
+    for (int i = 0; i < collection->size; i++) {
+        free_document(collection->documents[i]);
+    }
+
+    free(collection->documents);
+    free(collection);
 }
