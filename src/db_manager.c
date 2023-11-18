@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define INITIAL_HASH_TABLE_SIZE 16
 
@@ -32,6 +33,7 @@ typedef struct {
 typedef struct {
     Document *documents; // dynamic array of documents
     HashTable *hashTable; // HashTable for the collection
+    char *id; // collection ID
     int size;            // number of documents currently stored
     int capacity;        // current capacity of the array
 } Collection;
@@ -80,22 +82,19 @@ Collection *create_collection(){
     return collection;
 }
 
-bool add_document_to_collection(Collection *collection, Document *document){
-    if (collection->size >= collection->capacity){
-        // Dynamic expansion
-        int new_capacity = collection->capacity * 2;
-        Document * new_array = realloc(collection->documents, sizeof(Document) * new_capacity);
-        if (!new_array) return false; // Reallocation fails
+/* Document CRUD functions */
 
-        collection->documents = new_array;
-        collection->capacity = new_capacity;
+char *generate_unique_id() {
+    static int counter = 0;
+    time_t now = time(NULL);
+    char *id = malloc(32); // enough size for the ID
+
+    if (id) {
+        snprintf(id, 32, "%lx_%d", (long)now, counter++);
     }
 
-    collection->documents[collection->size++] = *document;
-    return true;
+    return id; // who calls this function will have to free the memory
 }
-
-/* Document CRUD functions */
 
 Document *create_document(const char *id, const char *content) {
     Document *doc = malloc(sizeof(Document));
