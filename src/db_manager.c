@@ -8,8 +8,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <jsmn.h>
 
 #define INITIAL_HASH_TABLE_SIZE 16
+#define MAX_TOKENS 160000
 
 /* Data Structures */
 typedef struct HashEntry HashEntry;
@@ -156,6 +158,25 @@ char *generate_unique_id() {
 }
 
 Document *create_document(const char *content) {
+    // JSON parsing and syntax check
+    jsmn_parser parser;
+    jsmntok_t tokens[MAX_TOKENS];
+    jsmn_init(&parser);
+
+    int num_tokens = jsmn_parse(&parser, content, strlen(content), NULL, 0);
+    
+    // checks if parsing succeeded
+    if(num_tokens < 0){
+        printf("Failed to parse JSON: %d\n", num_tokens);
+        return NULL;
+    }
+
+    // checks if the first token is an object or a JSON array
+    if (tokens[0].type != JSMN_OBJECT && tokens[0].type != JSMN_ARRAY){
+        printf("Invalid JSON structure\n");
+        return NULL;
+    }
+
     Document *doc = malloc(sizeof(Document));
     if (!doc) return NULL; // malloc fail
 
